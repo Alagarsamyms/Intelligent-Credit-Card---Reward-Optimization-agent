@@ -109,22 +109,22 @@ def build_graph() -> StateGraph:
 
     Graph topology:
         START
-          → user_input
-          → intent_classification
-          → [clarification | retrieval]
+          -> user_input
+          -> intent_classification
+          -> [clarification | retrieval]
         clarification
-          → [retrieval | END (await user input)]
+          -> [retrieval | END (await user input)]
         retrieval
-          → rule_validation
-          → [calculation | final_answer]
+          -> rule_validation
+          -> [calculation | final_answer]
         calculation
-          → comparison
-          → guardrail
-          → [human_approval | final_answer]
+          -> comparison
+          -> guardrail
+          -> [human_approval | final_answer]
         human_approval
-          → [final_answer | END]
+          -> [final_answer | END]
         final_answer
-          → END
+          -> END
     """
     builder = StateGraph(AgentState)
 

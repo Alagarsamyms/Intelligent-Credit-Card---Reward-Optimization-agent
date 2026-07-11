@@ -63,7 +63,7 @@ class TransferResult:
             f"**{self.partner_name}** ({self.partner_type}):",
             f"  • Points transferred: {self.points_transferred:,.0f} from {self.source_card}",
             f"  • Partner units received: {self.partner_units_received:,.0f} {self.partner_type} points/miles",
-            f"  • Transfer ratio: {1/self.transfer_ratio:.0f} source points → 1 partner unit",
+            f"  • Transfer ratio: {1/self.transfer_ratio:.0f} source points -> 1 partner unit",
             f"  • Estimated value: **Rs. {self.estimated_value_inr:,.0f}**",
         ]
         for w in self.warnings:

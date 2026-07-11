@@ -88,7 +88,7 @@ class TestCalculateReward:
             point_value_inr=1.0,
             milestone_spend=300000,
             milestone_bonus=2500,
-            current_annual_spend=280000,  # 280k → +50k crosses 300k
+            current_annual_spend=280000,  # 280k -> +50k crosses 300k
         )
         result = calculate_reward(inp)
         assert result.milestone_triggered is True
@@ -105,7 +105,7 @@ class TestCalculateReward:
             point_value_inr=1.0,
             milestone_spend=300000,
             milestone_bonus=2500,
-            current_annual_spend=100000,  # 100k → +10k = 110k, not crossing 300k
+            current_annual_spend=100000,  # 100k -> +10k = 110k, not crossing 300k
         )
         result = calculate_reward(inp)
         assert result.milestone_triggered is False
@@ -184,7 +184,7 @@ class TestAnnualFeeRecovery:
     """Annual fee recovery calculator tests."""
 
     def test_breakeven_calculation(self):
-        """Fee of Rs. 5000, avg reward Rs. 5 per Rs. 100 → breakeven = Rs. 1,00,000."""
+        """Fee of Rs. 5000, avg reward Rs. 5 per Rs. 100 -> breakeven = Rs. 1,00,000."""
         result = annual_fee_recovery(
             annual_fee_inr=5000,
             avg_reward_value_per_100_inr=5.0,
@@ -208,7 +208,7 @@ class TestSpecTestCases:
         """
         Spec Test 1: Rs. 50,000 on flights.
         Expected: Retrieve travel rules, compare cards, recommend best.
-        Calculation check: At 5 pts/100, Rs. 50,000 → 2,500 pts = Rs. 2,500.
+        Calculation check: At 5 pts/100, Rs. 50,000 -> 2,500 pts = Rs. 2,500.
         """
         inp = RewardInput(
             card_name="Axis Atlas",
@@ -225,7 +225,7 @@ class TestSpecTestCases:
     def test_spec_case_2_insurance_exclusion(self):
         """
         Spec Test 2: Rs. 25,000 insurance premium.
-        Expected: Exclusion detected → 0 reward.
+        Expected: Exclusion detected -> 0 reward.
         """
         inp = RewardInput(
             card_name="Axis Atlas",
@@ -242,7 +242,7 @@ class TestSpecTestCases:
     def test_spec_case_4_rent_exclusion(self):
         """
         Spec Test 4: Rent payment.
-        Expected: Most cards exclude rent → should be flagged.
+        Expected: Most cards exclude rent -> should be flagged.
         """
         cards = [
             RewardInput("Axis Atlas", 20000, 0, "points_per_100_inr",

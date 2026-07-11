@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
-from agents.state import AgentState, RewardInput
+from agents.state import AgentState
 from agents.prompts import (
     SYSTEM_PROMPT, INTENT_CLASSIFICATION_PROMPT, CLARIFICATION_PROMPT,
     RULE_EXTRACTION_PROMPT, FINAL_ANSWER_PROMPT,
@@ -480,7 +480,7 @@ def final_answer_node(state: AgentState) -> dict:
     guardrail_passed = state.get("guardrail_passed", False)
     guardrail_flags = state.get("guardrail_flags", [])
 
-    # If retrieval is insufficient → use the insufficient info template
+    # If retrieval is insufficient -> use the insufficient info template
     if not retrieval_sufficient and not calc_results:
         answer = INSUFFICIENT_INFO_RESPONSE.format(
             query=query,

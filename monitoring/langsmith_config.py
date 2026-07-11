@@ -29,7 +29,7 @@ def setup_langsmith():
     os.environ["LANGCHAIN_API_KEY"] = api_key
     os.environ["LANGCHAIN_PROJECT"] = project
 
-    print(f"[OK] LangSmith tracing enabled → Project: {project}")
+    print(f"[OK] LangSmith tracing enabled -> Project: {project}")
     return True
 
 

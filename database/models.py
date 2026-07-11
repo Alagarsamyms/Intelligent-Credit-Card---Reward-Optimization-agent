@@ -93,7 +93,7 @@ class TransferPartner(Base):
     created_at           = Column(DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f"<TransferPartner {self.card_name} → {self.partner_name} @ {self.transfer_ratio}>"
+        return f"<TransferPartner {self.card_name} -> {self.partner_name} @ {self.transfer_ratio}>"
 
 
 class UserProfile(Base):

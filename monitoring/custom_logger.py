@@ -39,7 +39,7 @@ def log_recommendation(
     Returns:
         query_id (UUID string)
     """
-    # Confidence string → numeric
+    # Confidence string -> numeric
     confidence_map = {"HIGH": 0.95, "MEDIUM-HIGH": 0.80, "MEDIUM": 0.65, "LOW": 0.40}
     conf_numeric = confidence_map.get(str(confidence_score).upper(), 0.65)
 

@@ -557,8 +557,8 @@ with tab3:
         st.info(
             "**Step 1**: Place credit card PDF documents in `data/raw_pdfs/`\n\n"
             "**Step 2**: Click 'Run Ingestion' to extract, chunk, and embed documents.\n\n"
-            "The pipeline uses PyMuPDF for extraction → RecursiveCharacterTextSplitter "
-            "for chunking → OpenAI text-embedding-3-small → pgvector storage."
+            "The pipeline uses PyMuPDF for extraction -> RecursiveCharacterTextSplitter "
+            "for chunking -> OpenAI text-embedding-3-small -> pgvector storage."
         )
 
         if st.button("🚀 Run Ingestion Pipeline", use_container_width=True, key="ingest_btn"):

@@ -175,7 +175,7 @@ def calculate_reward(inp: RewardInput) -> RewardResult:
     else:
         reward_value = points_after_cap * inp.point_value_inr
         result.notes.append(
-            f"Point value assumed: Rs. {inp.point_value_inr} per point → "
+            f"Point value assumed: Rs. {inp.point_value_inr} per point -> "
             f"Rs. {reward_value:,.2f}"
         )
 
