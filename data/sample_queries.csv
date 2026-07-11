@@ -1,0 +1,21 @@
+query_id,query,intent,expected_card,expected_value_inr,expected_behavior
+1,"I am spending Rs. 50000 on flights. Which card should I use?",single_transaction,Axis Atlas,2500,Retrieve travel rules, compare all cards, recommend Axis Atlas
+2,"I am paying Rs. 25000 insurance premium. Which card should I use?",single_transaction,SBI Cashback,250,Detect insurance exclusion for premium cards, recommend SBI Cashback for 1% cashback
+3,"I am spending Rs. 100000 on hotels and want Marriott points.",point_transfer,Axis Atlas,,"Ask goal, retrieve hotel + transfer rules, ask approval for transfer strategy"
+4,"Which card is best for rent payment?",single_transaction,None,0,"Retrieve rent rules, most cards exclude rent, say insufficient or mention exclusion"
+5,"I have 50000 points on Axis Atlas. Should I convert them to cashback?",point_valuation,Air India Flying Returns,,"Ask user goal, compare cashback vs transfer value"
+6,"My monthly spends are Rs. 30000 on dining, Rs. 40000 on travel, Rs. 20000 on groceries. Which cards should I use?",monthly_optimization,,"Classify categories, retrieve rules, recommend different cards per category"
+7,"I am spending Rs. 80000 on international flights.",single_transaction,HDFC Infinia,,"Retrieve international spend rules, compare cards"
+8,"Which card gives the best return for Zomato orders of Rs. 5000?",single_transaction,HDFC Diners Club Black,,"Identify Zomato as 10X partner for DCB, calculate 10X reward"
+9,"I have 80000 EDGE Miles on Axis Atlas. Should I transfer them to Air India?",point_transfer,,"Retrieve Axis Atlas transfer rules, ask approval, calculate transfer value"
+10,"Axis Atlas vs HDFC Infinia for travel spends?",card_comparison,,"Compare both cards on travel category, show rates and caps"
+11,"I am spending Rs. 15000 on utilities. Which card should I use?",single_transaction,Axis Atlas,"Retrieve utility rules, most cards earn base rate on utilities"
+12,"What is the value of 10000 Marriott Bonvoy points?",point_valuation,,"Explain partner redemption value, mention variability"
+13,"Which card has the best welcome bonus?",card_comparison,,"Retrieve welcome benefit info from all card docs"
+14,"I spend Rs. 2 lakh per month. Which card's annual fee can I recover?",monthly_optimization,,"Calculate annual fee recovery breakeven for each card"
+15,"I am paying Rs. 1 lakh school fees. Which card to use?",single_transaction,,"Check if education category is eligible or excluded"
+16,"Which card is best for Amazon shopping of Rs. 20000?",single_transaction,HDFC Diners Club Black,"Amazon is a 10X partner for HDFC DCB, calculate 10X reward"
+17,"I want to maximize points for a Rs. 5 lakh hotel stay.",single_transaction,,"Retrieve hotel rules, check for milestone benefits, compare all cards"
+18,"Can I transfer my SBI Cashback to any airline?",point_transfer,,"SBI Cashback has no transfer partners, explain this clearly"
+19,"I am spending Rs. 10000 on fuel. Which card is best?",single_transaction,,"Identify fuel rules, Axis Atlas/Amex give 1x, DCB excludes fuel, SBI gives 1%"
+20,"Which card should I use for Rs. 50000 at a foreign merchant?",single_transaction,Axis Atlas,"Retrieve international spend rules, Axis Atlas gives 5x on international"
