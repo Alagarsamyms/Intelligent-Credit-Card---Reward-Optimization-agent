@@ -26,11 +26,11 @@ from tools.rule_validator import validate_retrieval
 from tools.calculator import calculate_reward, compare_cards, RewardInput as CalcInput
 from tools.transfer_calculator import compare_transfer_options
 
-load_dotenv()
+load_dotenv(override=True)
 
 # ── LLM Instance ──────────────────────────────────────────────────────────────
 llm = ChatOpenAI(
-    model=os.getenv("OPENAI_MODEL", "gpt-4o"),
+    model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
     temperature=0,
     api_key=os.getenv("OPENAI_API_KEY"),
 )

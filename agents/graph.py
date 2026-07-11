@@ -26,7 +26,7 @@ from agents.nodes import (
     final_answer_node,
 )
 
-load_dotenv()
+load_dotenv(override=True)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -138,7 +138,7 @@ def build_graph() -> StateGraph:
     builder.add_node("comparison", comparison_node)
     builder.add_node("guardrail", guardrail_node)
     builder.add_node("human_approval", human_approval_node)
-    builder.add_node("final_answer", final_answer_node)
+    builder.add_node("generate_final_answer", final_answer_node)
 
     # ── Add edges ─────────────────────────────────────────────────────────────
     builder.add_edge(START, "user_input")
@@ -161,7 +161,7 @@ def build_graph() -> StateGraph:
     builder.add_conditional_edges(
         "rule_validation",
         route_after_validation,
-        {"calculation": "calculation", "final_answer": "final_answer"},
+        {"calculation": "calculation", "final_answer": "generate_final_answer"},
     )
 
     builder.add_edge("calculation", "comparison")
@@ -170,16 +170,16 @@ def build_graph() -> StateGraph:
     builder.add_conditional_edges(
         "guardrail",
         route_after_guardrail,
-        {"human_approval": "human_approval", "final_answer": "final_answer"},
+        {"human_approval": "human_approval", "final_answer": "generate_final_answer"},
     )
 
     builder.add_conditional_edges(
         "human_approval",
         route_after_human_approval,
-        {"final_answer": "final_answer", "end": END},
+        {"final_answer": "generate_final_answer", "end": END},
     )
 
-    builder.add_edge("final_answer", END)
+    builder.add_edge("generate_final_answer", END)
 
     # ── Compile with memory checkpointer for multi-turn conversations ─────────
     memory = MemorySaver()

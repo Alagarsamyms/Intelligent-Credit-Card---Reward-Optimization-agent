@@ -20,7 +20,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-load_dotenv()
+load_dotenv(override=True)
 
 # ── LangSmith setup ───────────────────────────────────────────────────────────
 from monitoring.langsmith_config import setup_langsmith

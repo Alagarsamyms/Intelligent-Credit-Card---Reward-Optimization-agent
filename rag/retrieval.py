@@ -60,10 +60,10 @@ def vector_search(
                     page_number,
                     chunk_index,
                     metadata_json,
-                    1 - (embedding <=> :embedding::vector) AS similarity
+                    1 - (embedding <=> CAST(:embedding AS vector)) AS similarity
                 FROM document_chunks
                 WHERE card_name = ANY(:cards)
-                ORDER BY embedding <=> :embedding::vector
+                ORDER BY embedding <=> CAST(:embedding AS vector)
                 LIMIT :top_k
             """), {
                 "embedding": embedding_str,
@@ -79,9 +79,9 @@ def vector_search(
                     page_number,
                     chunk_index,
                     metadata_json,
-                    1 - (embedding <=> :embedding::vector) AS similarity
+                    1 - (embedding <=> CAST(:embedding AS vector)) AS similarity
                 FROM document_chunks
-                ORDER BY embedding <=> :embedding::vector
+                ORDER BY embedding <=> CAST(:embedding AS vector)
                 LIMIT :top_k
             """), {
                 "embedding": embedding_str,
