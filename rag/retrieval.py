@@ -18,8 +18,6 @@ load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
-TOP_K = int(os.getenv("RETRIEVAL_TOP_K", 5))
-SCORE_THRESHOLD = float(os.getenv("RETRIEVAL_SCORE_THRESHOLD", 0.7))
 
 
 def embed_query(query: str) -> list[float]:
@@ -34,7 +32,7 @@ def embed_query(query: str) -> list[float]:
 def vector_search(
     query_embedding: list[float],
     card_filter: list[str] | None = None,
-    top_k: int = TOP_K,
+    top_k: int = None,
 ) -> list[dict]:
     """
     Perform cosine similarity search against document_chunks using pgvector.
@@ -47,6 +45,9 @@ def vector_search(
     Returns:
         List of chunk dicts with similarity scores
     """
+    top_k = top_k or int(os.getenv("RETRIEVAL_TOP_K", 5))
+    score_threshold = float(os.getenv("RETRIEVAL_SCORE_THRESHOLD", 0.40))
+
     with get_db_context() as db:
         # Build pgvector cosine similarity query
         embedding_str = "[" + ",".join(str(v) for v in query_embedding) + "]"
@@ -99,7 +100,7 @@ def vector_search(
                 "metadata":    row.metadata_json or {},
             }
             for row in rows
-            if float(row.similarity) >= SCORE_THRESHOLD
+            if float(row.similarity) >= score_threshold
         ]
 
 
@@ -119,7 +120,7 @@ def keyword_filter(chunks: list[dict], keywords: list[str]) -> list[dict]:
 def retrieve(
     query: str,
     card_filter: list[str] | None = None,
-    top_k: int = TOP_K,
+    top_k: int = None,
     keywords: list[str] | None = None,
 ) -> list[dict]:
     """
@@ -134,6 +135,7 @@ def retrieve(
     Returns:
         Ranked list of relevant chunk dicts
     """
+    top_k = top_k or int(os.getenv("RETRIEVAL_TOP_K", 5))
     query_embedding = embed_query(query)
 
     # Vector similarity search

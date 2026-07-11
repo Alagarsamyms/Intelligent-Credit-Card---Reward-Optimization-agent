@@ -406,16 +406,15 @@ with tab1:
     for i, (col, sq) in enumerate(zip(cols, sample_queries)):
         with col:
             if st.button(sq[:35] + "...", key=f"sq_{i}", use_container_width=True):
-                st.session_state["_autofill_query"] = sq
+                st.session_state.messages.append({"role": "user", "content": sq})
                 st.rerun()
 
     # ── Chat Input ────────────────────────────────────────────────────────────
     st.divider()
     with st.form("chat_form", clear_on_submit=True):
-        prefill = st.session_state.pop("_autofill_query", "")
         user_input = st.text_area(
             "Ask me about your credit card rewards",
-            value=prefill,
+            value="",
             placeholder="e.g. I am spending Rs. 50,000 on flights. Which card should I use?",
             height=80,
             key="chat_input",

@@ -151,6 +151,7 @@ def clarification_node(state: AgentState) -> dict:
     return {
         "needs_clarification": needs,
         "clarification_question": question,
+        "final_answer": question if needs else "",
     }
 
 
@@ -207,7 +208,7 @@ def rule_validation_node(state: AgentState) -> dict:
     validation = validate_retrieval(
         chunks=chunks,
         spend_category=spend_category,
-        min_similarity=0.65,
+        min_similarity=0.40,
         min_chunks=1,
     )
 

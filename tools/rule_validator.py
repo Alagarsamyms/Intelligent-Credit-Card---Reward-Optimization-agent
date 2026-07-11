@@ -57,7 +57,7 @@ class ValidationResult:
 def validate_retrieval(
     chunks: list[dict],
     spend_category: str,
-    min_similarity: float = 0.70,
+    min_similarity: float = 0.40,
     min_chunks: int = 1,
 ) -> ValidationResult:
     """
@@ -145,7 +145,7 @@ def validate_retrieval(
 
     # Determine overall sufficiency
     has_rule = len(found_rules) > 0
-    has_high_similarity = any(c.get("similarity", 0) >= 0.85 for c in relevant)
+    has_high_similarity = any(c.get("similarity", 0) >= 0.48 for c in relevant)
     category_mentioned = any(
         spend_category.lower() in c.get("chunk_text", "").lower() for c in relevant
     )
