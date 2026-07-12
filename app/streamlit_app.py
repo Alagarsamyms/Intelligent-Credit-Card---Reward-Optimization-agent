@@ -357,14 +357,23 @@ with tab1:
         col1, col2, col3 = st.columns([1, 1, 4])
         with col1:
             if st.button("✅ Confirm", key="confirm_btn", use_container_width=True):
-                with st.spinner("Calculating transfer strategy..."):
-                    result = run_agent(
-                        query=st.session_state.pending_query,
-                        user_id=st.session_state.user_id,
-                        thread_id=st.session_state.thread_id,
-                        user_profile=st.session_state.user_profile,
-                        human_approved=True,
-                    )
+                with st.spinner("Analyzing rules & optimizing rewards..."):
+                    try:
+                        result = run_agent(
+                            query=st.session_state.pending_query,
+                            user_id=st.session_state.user_id,
+                            thread_id=st.session_state.thread_id,
+                            user_profile=st.session_state.user_profile,
+                            human_approved=True,
+                        )
+                    except Exception as e:
+                        import traceback
+                        error_str = str(e)
+                        if "postgresql://" in error_str:
+                            import re
+                            error_str = re.sub(r":.*@", ":***@", error_str)
+                        st.error(f"**Database Connection Error:**\n\n{error_str}")
+                        st.stop()
                 st.session_state.messages.append({
                     "role": "assistant",
                     "content": result.get("final_answer", ""),
@@ -435,12 +444,20 @@ with tab1:
 
         with st.spinner("🔍 Retrieving card rules and calculating..."):
             start_time = time.time()
-            result = run_agent(
-                query=last_query,
-                user_id=st.session_state.user_id,
-                thread_id=st.session_state.thread_id,
-                user_profile=st.session_state.user_profile,
-            )
+            try:
+                result = run_agent(
+                    query=last_query,
+                    user_id=st.session_state.user_id,
+                    thread_id=st.session_state.thread_id,
+                    user_profile=st.session_state.user_profile,
+                )
+            except Exception as e:
+                error_str = str(e)
+                if "postgresql://" in error_str:
+                    import re
+                    error_str = re.sub(r":.*@", ":***@", error_str)
+                st.error(f"**Database Connection Error:**\n\n{error_str}")
+                st.stop()
             latency_ms = int((time.time() - start_time) * 1000)
 
         # Check if human approval is needed
