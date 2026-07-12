@@ -8,9 +8,21 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import QueuePool
 
-load_dotenv()
+load_dotenv(override=True)
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/credit_card_rewards")
+def _get_database_url() -> str:
+    """Get DATABASE_URL from env or Streamlit secrets."""
+    url = os.getenv("DATABASE_URL")
+    if not url:
+        try:
+            import streamlit as st  # noqa: PLC0415
+            url = st.secrets.get("DATABASE_URL", "")
+        except Exception:
+            pass
+    return url or "postgresql://postgres:password@localhost:5432/credit_card_rewards"
+
+DATABASE_URL = _get_database_url()
+
 
 engine = create_engine(
     DATABASE_URL,
