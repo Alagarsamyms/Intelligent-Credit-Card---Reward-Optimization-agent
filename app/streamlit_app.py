@@ -409,18 +409,21 @@ with tab1:
     st.divider()
     st.markdown("##### 💡 Try a sample query:")
     sample_queries = [
-        "I am spending Rs. 50,000 on flights. Which card?",
-        "Rs. 25,000 insurance premium. Which card?",
-        "Which card is best for rent payment?",
-        "I have 50,000 EDGE Miles. Should I transfer to Air India?",
-        "My monthly spend: Rs. 40,000 travel, Rs. 30,000 dining. Optimize my cards.",
+        "I am spending Rs. 50,000 on flights. Which card should I use?",
+        "I am paying Rs. 25,000 insurance premium. Which card should I use?",
+        "I am spending Rs. 1,00,000 on hotels and want Marriott points.",
+        "I have 80,000 EDGE Miles on Axis Atlas. Should I transfer them to Air India?",
+        "My monthly spends are Rs. 40,000 travel, Rs. 30,000 dining, Rs. 20,000 groceries. Which cards should I use for each?",
     ]
-    cols = st.columns(len(sample_queries))
-    for i, (col, sq) in enumerate(zip(cols, sample_queries)):
-        with col:
-            if st.button(sq[:35] + "...", key=f"sq_{i}", use_container_width=True):
+    # Display as a 2-column grid so full text is visible
+    sq_col1, sq_col2 = st.columns(2)
+    for i, sq in enumerate(sample_queries):
+        target_col = sq_col1 if i % 2 == 0 else sq_col2
+        with target_col:
+            if st.button(sq, key=f"sq_{i}", use_container_width=True):
                 st.session_state.messages.append({"role": "user", "content": sq})
                 st.rerun()
+
 
     # ── Chat Input ────────────────────────────────────────────────────────────
     st.divider()
