@@ -549,17 +549,20 @@ with tab2:
 
         logs = get_recent_logs(limit=20)
         if logs:
-            import pandas as pd
-            df = pd.DataFrame(logs)
             display_cols = ["created_at", "query_text", "intent", "recommended_card",
                             "estimated_value_inr", "confidence_score", "latency_ms",
                             "guardrail_flags"]
-            df_display = df[[c for c in display_cols if c in df.columns]].copy()
-            df_display["query_text"] = df_display["query_text"].str[:60] + "..."
-            # Cast all columns to string to prevent PyArrow from segmentation faulting
-            # on complex objects (like dicts or timezone datetimes) during serialization
-            df_display = df_display.astype(str)
-            st.dataframe(df_display, use_container_width=True, height=400)
+            flat_logs = []
+            for log in logs:
+                flat = {}
+                for k in display_cols:
+                    if k in log:
+                        val = str(log[k])
+                        if k == "query_text" and len(val) > 60:
+                            val = val[:60] + "..."
+                        flat[k] = val
+                flat_logs.append(flat)
+            st.dataframe(flat_logs, use_container_width=True, height=400)
         else:
             st.info("No logs yet. Start a conversation to see monitoring data here.")
     except Exception as e:
