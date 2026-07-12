@@ -556,6 +556,9 @@ with tab2:
                             "guardrail_flags"]
             df_display = df[[c for c in display_cols if c in df.columns]].copy()
             df_display["query_text"] = df_display["query_text"].str[:60] + "..."
+            # Cast all columns to string to prevent PyArrow from segmentation faulting
+            # on complex objects (like dicts or timezone datetimes) during serialization
+            df_display = df_display.astype(str)
             st.dataframe(df_display, use_container_width=True, height=400)
         else:
             st.info("No logs yet. Start a conversation to see monitoring data here.")
