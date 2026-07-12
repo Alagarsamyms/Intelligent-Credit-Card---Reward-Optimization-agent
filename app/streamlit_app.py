@@ -260,23 +260,32 @@ with st.sidebar:
     st.divider()
     st.markdown("### 🔧 Quick Actions")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🔄 Clear Chat", use_container_width=True):
-            st.session_state.messages = []
-            st.session_state.pending_approval = None
-            st.session_state.pending_query = None
-            st.rerun()
-    with col2:
-        if st.button("📊 Stats", use_container_width=True):
-            st.session_state.active_tab = "Monitoring"
-            st.rerun()
+    if st.button("🔄 Clear Chat", use_container_width=True):
+        st.session_state.messages = []
+        st.session_state.pending_approval = None
+        st.session_state.pending_query = None
+        st.rerun()
+
+    st.divider()
+    st.markdown("### 📊 Live Stats")
+    try:
+        sidebar_stats = get_monitoring_stats()
+        s_col1, s_col2 = st.columns(2)
+        with s_col1:
+            st.metric("Queries", sidebar_stats["total_queries"])
+            st.metric("Avg Latency", f"{int(sidebar_stats['avg_latency_ms'])} ms")
+        with s_col2:
+            st.metric("Avg Confidence", f"{sidebar_stats['avg_confidence']:.0%}")
+            st.metric("Guardrail Flags", sidebar_stats["guardrail_violations"])
+        st.caption("↑ Updates after each query")
+    except Exception:
+        st.caption("Stats unavailable — connect DB first")
 
     st.divider()
     db_ok = check_connection()
     status_color = "🟢" if db_ok else "🔴"
     st.caption(f"{status_color} Database: {'Connected' if db_ok else 'Disconnected'}")
-    st.caption("🤖 Model: GPT-4o | 📡 LangSmith: Active")
+    st.caption("🤖 Model: GPT-4o-mini | 📡 LangSmith: Active")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
