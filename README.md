@@ -57,15 +57,18 @@ LangSmith Trace + PostgreSQL Log
 
 | Layer | Technology |
 |---|---|
-| LLM | OpenAI GPT-4o |
+| LLM | OpenAI GPT-4o / GPT-4o-mini |
 | Embeddings | OpenAI text-embedding-3-small |
-| Agent Framework | LangGraph (StateGraph) |
-| Vector DB | PostgreSQL + pgvector |
-| ORM | SQLAlchemy |
+| Agent Framework | LangGraph (StateGraph) 0.4+ |
+| Vector DB | PostgreSQL + pgvector (via Supabase) |
+| Database Driver | `psycopg` (Pure Python) - ensures cross-platform stability |
+| Connection Pooler | Supabase Transaction Pooler (NullPool via SQLAlchemy) |
+| ORM | SQLAlchemy 2.0 |
 | PDF Processing | PyMuPDF (fitz) |
-| UI | Streamlit |
+| UI | Streamlit 1.41.0 (pinned for C-extension stability) |
 | Backend API | FastAPI |
-| Monitoring | LangSmith |
+| Monitoring | LangSmith + PostgreSQL audit logging |
+| Package Manager | `uv` (used for fast, deterministic builds) |
 | Evaluation | Custom + RAGAS |
 
 ---
@@ -263,6 +266,17 @@ The difference between a basic chatbot and this agent:
 > **Basic chatbot**: "Axis Atlas is good for travel."
 >
 > **This agent**: "For your Rs. 50,000 flight booking, Axis Atlas gives Rs. 2,500 estimated value (5% return) based on the retrieved travel reward rule from Page 2 of the card T&C. HDFC DCB gives Rs. 5,000 via SmartBuy bookings. Monthly cap of 25,000 bonus points applies for DCB. Assumes 1 point = Rs. 0.50. Please verify with your card issuer. Confidence: MEDIUM-HIGH."
+
+---
+
+## Cloud Deployment Architecture (Streamlit Cloud & Supabase)
+
+To ensure maximum stability in cloud environments (like Streamlit Community Cloud), the following architectural decisions were implemented:
+
+1. **Pure Python Database Driver**: The project uses `psycopg` in pure Python mode (rather than `psycopg-binary`). This eliminates `Segmentation fault` crashes caused by conflicting C-level OpenSSL extensions on older Linux kernels.
+2. **Supabase Transaction Pooling**: When connecting to Supabase via port `6543`, the connection is handled by a server-side Transaction Pooler (Supavisor). To prevent dropped connections, SQLAlchemy is configured to use `NullPool`, deferring all pooling logic to the server.
+3. **PyArrow Serialization Bypass**: The Streamlit monitoring logs bypass standard Pandas to PyArrow DataFrame conversion for complex JSON fields, instead feeding native Python string dictionaries directly to `st.dataframe`. This prevents C++ memory faults during data serialization.
+4. **Secrets Hierarchy**: The application seamlessly falls back from `.env` files for local development to `st.secrets` for Streamlit Cloud deployment without requiring code changes.
 
 ---
 
