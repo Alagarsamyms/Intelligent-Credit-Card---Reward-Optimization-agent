@@ -20,20 +20,28 @@ _SessionLocal = None
 def _get_database_url() -> str:
     """
     Resolve DATABASE_URL at call time (not import time) so Streamlit secrets
-    are available.  Priority: os.environ → st.secrets → fallback.
+    are available.
     """
+    url = None
+
     # Try Streamlit secrets first (source of truth on Cloud)
     try:
         import streamlit as st  # noqa: PLC0415
         url = st.secrets.get("DATABASE_URL")
-        if url:
-            return url
     except Exception:
         pass
 
     # Fallback to local environment (.env)
-    url = os.getenv("DATABASE_URL")
-    return url or "postgresql://postgres:password@localhost:5432/credit_card_rewards"
+    if not url:
+        url = os.getenv("DATABASE_URL")
+    
+    url = url or "postgresql://postgres:password@localhost:5432/credit_card_rewards"
+
+    # Transparently upgrade URL scheme for psycopg3
+    if url.startswith("postgresql://"):
+        url = url.replace("postgresql://", "postgresql+psycopg://", 1)
+    
+    return url
 
 
 def _get_engine():
