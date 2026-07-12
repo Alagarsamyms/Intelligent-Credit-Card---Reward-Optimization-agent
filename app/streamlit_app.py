@@ -9,6 +9,9 @@ import json
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import faulthandler
+faulthandler.enable()
+
 import streamlit as st
 from dotenv import load_dotenv
 
