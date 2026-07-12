@@ -11,7 +11,7 @@ pgvector==0.3.6
 sqlalchemy==2.0.41
 
 # UI
-streamlit==1.45.1
+streamlit==1.41.0
 
 # Monitoring & Tracing
 langsmith==0.3.45
