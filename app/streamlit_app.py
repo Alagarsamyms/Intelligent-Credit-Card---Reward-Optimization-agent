@@ -20,16 +20,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Load secrets (works both locally from .env and on Streamlit Cloud) ────────
-try:
-    import streamlit as _st_secrets_loader
-    for _k, _v in _st_secrets_loader.secrets.items():
-        if isinstance(_v, str):
-            os.environ.setdefault(_k, _v)
-except Exception:
-    pass
-
 load_dotenv(override=True)
+
 
 # ── LangSmith setup ───────────────────────────────────────────────────────────
 from monitoring.langsmith_config import setup_langsmith

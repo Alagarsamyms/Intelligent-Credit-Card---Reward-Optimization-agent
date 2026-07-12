@@ -1,5 +1,7 @@
 """
 Database connection management with SQLAlchemy + pgvector.
+Engine is created lazily on first use so that Streamlit secrets are
+available before the connection is established.
 """
 import os
 from contextlib import contextmanager
@@ -10,8 +12,16 @@ from sqlalchemy.pool import QueuePool
 
 load_dotenv(override=True)
 
+# ── Lazy engine singleton ──────────────────────────────────────────────────────
+_engine = None
+_SessionLocal = None
+
+
 def _get_database_url() -> str:
-    """Get DATABASE_URL from env or Streamlit secrets."""
+    """
+    Resolve DATABASE_URL at call time (not import time) so Streamlit secrets
+    are available.  Priority: os.environ → st.secrets → fallback.
+    """
     url = os.getenv("DATABASE_URL")
     if not url:
         try:
@@ -21,24 +31,28 @@ def _get_database_url() -> str:
             pass
     return url or "postgresql://postgres:password@localhost:5432/credit_card_rewards"
 
-DATABASE_URL = _get_database_url()
 
-
-engine = create_engine(
-    DATABASE_URL,
-    poolclass=QueuePool,
-    pool_size=5,
-    max_overflow=10,
-    pool_pre_ping=True,
-    echo=False,
-)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+def _get_engine():
+    """Return the shared engine + session factory, creating them on first call."""
+    global _engine, _SessionLocal
+    if _engine is None:
+        db_url = _get_database_url()
+        _engine = create_engine(
+            db_url,
+            poolclass=QueuePool,
+            pool_size=5,
+            max_overflow=10,
+            pool_pre_ping=True,
+            echo=False,
+        )
+        _SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=_engine)
+    return _engine, _SessionLocal
 
 
 def get_db() -> Session:
     """FastAPI dependency: yields a database session."""
-    db = SessionLocal()
+    _, session_factory = _get_engine()
+    db = session_factory()
     try:
         yield db
     finally:
@@ -48,7 +62,8 @@ def get_db() -> Session:
 @contextmanager
 def get_db_context():
     """Context manager for use outside FastAPI (scripts, agents)."""
-    db = SessionLocal()
+    _, session_factory = _get_engine()
+    db = session_factory()
     try:
         yield db
         db.commit()
@@ -64,6 +79,7 @@ def init_db():
     schema_path = os.path.join(os.path.dirname(__file__), "schema.sql")
     with open(schema_path, "r", encoding="utf-8") as f:
         schema_sql = f.read()
+    engine, _ = _get_engine()
     with engine.connect() as conn:
         conn.execute(text(schema_sql))
         conn.commit()
@@ -73,6 +89,7 @@ def init_db():
 def check_connection() -> bool:
     """Quick health check for the database connection."""
     try:
+        engine, _ = _get_engine()
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
         return True
