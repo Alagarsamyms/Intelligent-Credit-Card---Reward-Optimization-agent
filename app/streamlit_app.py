@@ -551,7 +551,7 @@ with tab2:
             display_cols = ["created_at", "query_text", "intent", "recommended_card",
                             "estimated_value_inr", "confidence_score", "latency_ms",
                             "guardrail_flags"]
-            df_display = df[[c for c in display_cols if c in df.columns]]
+            df_display = df[[c for c in display_cols if c in df.columns]].copy()
             df_display["query_text"] = df_display["query_text"].str[:60] + "..."
             st.dataframe(df_display, use_container_width=True, height=400)
         else:
