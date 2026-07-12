@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.pool import QueuePool
+from sqlalchemy.pool import NullPool
 
 load_dotenv(override=True)
 
@@ -51,9 +51,7 @@ def _get_engine():
         db_url = _get_database_url()
         _engine = create_engine(
             db_url,
-            poolclass=QueuePool,
-            pool_size=5,
-            max_overflow=10,
+            poolclass=NullPool,
             pool_pre_ping=True,
             echo=False,
         )
