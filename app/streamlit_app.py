@@ -39,91 +39,37 @@ from database.db import check_connection
 # ═══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ══════════════════════════════════════════════
-   DESIGN TOKENS — Dark theme (default)
-══════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════
+   All colors derive from Streamlit's own runtime variables.
+   These switch correctly when the user toggles Light / Dark
+   in the Streamlit settings menu (hamburger → Settings).
+
+   Streamlit exposes:
+     var(--background-color)           → page background
+     var(--secondary-background-color) → card / sidebar bg
+     var(--text-color)                 → body text
+     var(--primary-color)              → accent (from config)
+════════════════════════════════════════════════════════ */
+
+/* ── Brand accents (fixed, readable on both themes) ── */
 :root {
-    --bg-base:          #0d0f1a;
-    --bg-surface:       #111827;
-    --bg-surface2:      #1a1f3c;
-    --bg-surface3:      #1e2749;
-    --border-subtle:    rgba(99,102,241,0.20);
-    --border-accent:    rgba(99,102,241,0.40);
-    --text-primary:     #e8eaf2;
-    --text-secondary:   #94a3b8;
-    --text-muted:       #64748b;
-    --accent:           #818cf8;
-    --accent2:          #c084fc;
-    --accent3:          #fb7185;
-    --btn-from:         #4f46e5;
-    --btn-to:           #7c3aed;
-    --btn-text:         #ffffff;
-    --pill-bg:          rgba(99,102,241,0.12);
-    --pill-border:      rgba(99,102,241,0.35);
-    --pill-color:       #818cf8;
-    --approval-bg:      #1c1a30;
-    --approval-border:  rgba(251,146,60,0.55);
-    --approval-title:   #fb923c;
-    --sidebar-bg-from:  #0d1117;
-    --sidebar-bg-to:    #111827;
-    --sidebar-border:   rgba(99,102,241,0.15);
-    --input-bg:         #1a1f3c;
-    --input-border:     rgba(99,102,241,0.40);
-    --input-color:      #e8eaf2;
-    --hr-color:         rgba(99,102,241,0.15);
-    --header-bg-from:   #1a1f3c;
-    --header-bg-to:     #0d1117;
-    --metric-value:     #818cf8;
+    --brand-indigo:  #4f46e5;
+    --brand-violet:  #7c3aed;
+    --brand-rose:    #e11d48;
+    --brand-border:  rgba(99, 102, 241, 0.28);
+    --brand-border-strong: rgba(99, 102, 241, 0.50);
+    --brand-glow:    rgba(99, 102, 241, 0.08);
 }
 
-/* ══════════════════════════════════════════════
-   DESIGN TOKENS — Light theme overrides
-══════════════════════════════════════════════ */
-@media (prefers-color-scheme: light) {
-    :root {
-        --bg-base:          #f5f6fa;
-        --bg-surface:       #ffffff;
-        --bg-surface2:      #eef0fb;
-        --bg-surface3:      #e5e7f8;
-        --border-subtle:    rgba(79,70,229,0.15);
-        --border-accent:    rgba(79,70,229,0.35);
-        --text-primary:     #1e1e2e;
-        --text-secondary:   #4b5563;
-        --text-muted:       #6b7280;
-        --accent:           #4f46e5;
-        --accent2:          #7c3aed;
-        --accent3:          #e11d48;
-        --btn-from:         #4f46e5;
-        --btn-to:           #7c3aed;
-        --btn-text:         #ffffff;
-        --pill-bg:          rgba(79,70,229,0.08);
-        --pill-border:      rgba(79,70,229,0.30);
-        --pill-color:       #4f46e5;
-        --approval-bg:      #fff7ed;
-        --approval-border:  rgba(234,88,12,0.45);
-        --approval-title:   #ea580c;
-        --sidebar-bg-from:  #f0f1fc;
-        --sidebar-bg-to:    #e8eaf8;
-        --sidebar-border:   rgba(79,70,229,0.12);
-        --input-bg:         #ffffff;
-        --input-border:     rgba(79,70,229,0.35);
-        --input-color:      #1e1e2e;
-        --hr-color:         rgba(79,70,229,0.12);
-        --header-bg-from:   #eef0fb;
-        --header-bg-to:     #f5f6fa;
-        --metric-value:     #4f46e5;
-    }
-}
+/* ── Global font ── */
+* { font-family: 'Inter', sans-serif !important; }
 
-/* ── Global ── */
-* { font-family: 'Inter', sans-serif; }
-
-/* ── Main header ── */
+/* ── Main header — uses Streamlit background variables ── */
 .main-header {
-    background: linear-gradient(135deg, var(--header-bg-from) 0%, var(--header-bg-to) 50%, var(--header-bg-from) 100%);
-    border: 1px solid var(--border-subtle);
+    background: var(--secondary-background-color);
+    border: 1px solid var(--brand-border);
     border-radius: 16px;
     padding: 28px 32px;
     margin-bottom: 24px;
@@ -135,62 +81,65 @@ st.markdown("""
     position: absolute;
     top: -50%; left: -50%;
     width: 200%; height: 200%;
-    background: radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 60%);
+    background: radial-gradient(circle, var(--brand-glow) 0%, transparent 60%);
     pointer-events: none;
 }
 .main-header h1 {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+    background: linear-gradient(135deg, var(--brand-indigo), var(--brand-violet), var(--brand-rose));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin: 0;
 }
 .main-header p {
-    color: var(--text-secondary);
+    color: var(--text-color);
+    opacity: 0.60;
     font-size: 14px;
     margin: 6px 0 0 0;
 }
 
-/* ── Chat messages ── */
+/* ── Chat messages — Streamlit secondary bg + brand border ── */
 .user-message {
-    background: linear-gradient(135deg, var(--bg-surface3), var(--bg-surface2));
-    border: 1px solid var(--border-accent);
+    background: var(--secondary-background-color);
+    border: 1.5px solid var(--brand-border-strong);
     border-radius: 16px 16px 4px 16px;
     padding: 14px 18px;
     margin: 12px 0 4px auto;
     max-width: 80%;
-    color: var(--text-primary);
+    color: var(--text-color);
     font-size: 15px;
+    line-height: 1.6;
 }
 .agent-message {
-    background: linear-gradient(135deg, var(--bg-surface), var(--bg-surface2));
-    border: 1px solid var(--border-subtle);
+    background: var(--secondary-background-color);
+    border: 1px solid var(--brand-border);
     border-radius: 4px 16px 16px 16px;
     padding: 18px 22px;
     margin: 4px auto 12px 0;
     max-width: 90%;
-    color: var(--text-primary);
+    color: var(--text-color);
     font-size: 14px;
-    line-height: 1.7;
+    line-height: 1.75;
 }
 
-/* ── Confidence badges ── */
-.badge-high       { background: rgba(34,197,94,0.13);  border: 1px solid #22c55e; color: #16a34a; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-.badge-medium-high{ background: rgba(59,130,246,0.13); border: 1px solid #3b82f6; color: #2563eb; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-.badge-medium     { background: rgba(234,179,8,0.13);  border: 1px solid #eab308; color: #a16207; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-.badge-low        { background: rgba(239,68,68,0.13);  border: 1px solid #ef4444; color: #dc2626; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+/* ── Confidence badges — solid semantic colors, AA contrast ── */
+.badge-high        { background: rgba(22,163,74,0.12);  border: 1.5px solid #16a34a; color: #15803d; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; display: inline-block; }
+.badge-medium-high { background: rgba(37,99,235,0.12);  border: 1.5px solid #2563eb; color: #1d4ed8; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; display: inline-block; }
+.badge-medium      { background: rgba(161,98,7,0.12);   border: 1.5px solid #a16207; color: #854d0e; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; display: inline-block; }
+.badge-low         { background: rgba(185,28,28,0.12);  border: 1.5px solid #b91c1c; color: #991b1b; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; display: inline-block; }
 
 /* ── Approval panel ── */
 .approval-panel {
-    background: var(--approval-bg);
-    border: 2px solid var(--approval-border);
+    background: var(--secondary-background-color);
+    border: 2px solid rgba(234, 88, 12, 0.50);
     border-radius: 16px;
     padding: 24px;
     margin: 16px 0;
 }
 .approval-title {
-    color: var(--approval-title);
+    color: #ea580c;
     font-weight: 700;
     font-size: 16px;
     margin-bottom: 12px;
@@ -198,8 +147,8 @@ st.markdown("""
 
 /* ── Metric cards ── */
 .metric-card {
-    background: linear-gradient(135deg, var(--bg-surface2), var(--bg-surface));
-    border: 1px solid var(--border-subtle);
+    background: var(--secondary-background-color);
+    border: 1px solid var(--brand-border);
     border-radius: 12px;
     padding: 18px;
     text-align: center;
@@ -207,72 +156,102 @@ st.markdown("""
 .metric-value {
     font-size: 28px;
     font-weight: 700;
-    color: var(--metric-value);
+    color: var(--brand-indigo);
 }
 .metric-label {
     font-size: 12px;
-    color: var(--text-muted);
+    color: var(--text-color);
+    opacity: 0.55;
     margin-top: 4px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
 
-/* ── Sidebar ── */
-section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, var(--sidebar-bg-from) 0%, var(--sidebar-bg-to) 100%);
-    border-right: 1px solid var(--sidebar-border);
-}
-section[data-testid="stSidebar"] .stSelectbox label,
-section[data-testid="stSidebar"] .stTextInput label {
-    color: var(--text-secondary);
-}
-
-/* ── Input boxes ── */
-.stTextInput > div > div > input,
-.stTextArea > div > div > textarea {
-    background: var(--input-bg) !important;
-    border: 1px solid var(--input-border) !important;
-    color: var(--input-color) !important;
-    border-radius: 12px !important;
-    font-size: 15px !important;
-}
-
-/* ── Buttons ── */
+/* ── Buttons — purple gradient, white text (readable on both themes) ── */
 .stButton > button {
-    background: linear-gradient(135deg, var(--btn-from), var(--btn-to)) !important;
-    color: var(--btn-text) !important;
+    background: linear-gradient(135deg, var(--brand-indigo), var(--brand-violet)) !important;
+    color: #ffffff !important;
     border: none !important;
     border-radius: 10px !important;
     font-weight: 600 !important;
-    padding: 10px 24px !important;
+    font-size: 14px !important;
+    padding: 10px 20px !important;
     transition: all 0.2s ease !important;
+    white-space: normal !important;
+    height: auto !important;
+    min-height: 40px !important;
 }
 .stButton > button:hover {
     transform: translateY(-1px) !important;
-    box-shadow: 0 8px 24px rgba(79,70,229,0.35) !important;
+    box-shadow: 0 8px 24px rgba(79, 70, 229, 0.35) !important;
+}
+.stButton > button:active {
+    transform: translateY(0) !important;
+}
+
+/* ── Form submit button (Send) ── */
+.stFormSubmitButton > button {
+    background: linear-gradient(135deg, var(--brand-indigo), var(--brand-violet)) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    transition: all 0.2s ease !important;
+}
+.stFormSubmitButton > button:hover {
+    box-shadow: 0 8px 24px rgba(79, 70, 229, 0.35) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ── Input text area — only add border radius; let Streamlit handle bg/color ── */
+.stTextArea > div > div > textarea {
+    border-radius: 12px !important;
+    font-size: 15px !important;
+    font-family: 'Inter', sans-serif !important;
+    border: 1px solid var(--brand-border) !important;
+}
+.stTextInput > div > div > input {
+    border-radius: 10px !important;
+    font-family: 'Inter', sans-serif !important;
 }
 
 /* ── Source chunk pill ── */
 .source-pill {
     display: inline-block;
-    background: var(--pill-bg);
-    border: 1px solid var(--pill-border);
-    color: var(--pill-color);
+    background: rgba(99, 102, 241, 0.10);
+    border: 1px solid rgba(99, 102, 241, 0.30);
+    color: var(--brand-indigo);
     border-radius: 999px;
     padding: 2px 10px;
     font-size: 11px;
     margin: 2px;
+    font-weight: 500;
 }
 
 /* ── Divider ── */
-hr { border-color: var(--hr-color) !important; }
+hr { border-color: var(--brand-border) !important; }
+
+/* ── Tab text readable in both themes ── */
+.stTabs [data-baseweb="tab"] {
+    font-weight: 600 !important;
+    font-size: 14px !important;
+}
 </style>
 """, unsafe_allow_html=True)
+
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Session State Initialization
 # ═══════════════════════════════════════════════════════════════════════════════
+
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Session State Initialization
+# ═══════════════════════════════════════════════════════════════════════════════
+
 
 def init_session():
     defaults = {
