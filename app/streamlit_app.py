@@ -41,14 +41,89 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
+/* ══════════════════════════════════════════════
+   DESIGN TOKENS — Dark theme (default)
+══════════════════════════════════════════════ */
+:root {
+    --bg-base:          #0d0f1a;
+    --bg-surface:       #111827;
+    --bg-surface2:      #1a1f3c;
+    --bg-surface3:      #1e2749;
+    --border-subtle:    rgba(99,102,241,0.20);
+    --border-accent:    rgba(99,102,241,0.40);
+    --text-primary:     #e8eaf2;
+    --text-secondary:   #94a3b8;
+    --text-muted:       #64748b;
+    --accent:           #818cf8;
+    --accent2:          #c084fc;
+    --accent3:          #fb7185;
+    --btn-from:         #4f46e5;
+    --btn-to:           #7c3aed;
+    --btn-text:         #ffffff;
+    --pill-bg:          rgba(99,102,241,0.12);
+    --pill-border:      rgba(99,102,241,0.35);
+    --pill-color:       #818cf8;
+    --approval-bg:      #1c1a30;
+    --approval-border:  rgba(251,146,60,0.55);
+    --approval-title:   #fb923c;
+    --sidebar-bg-from:  #0d1117;
+    --sidebar-bg-to:    #111827;
+    --sidebar-border:   rgba(99,102,241,0.15);
+    --input-bg:         #1a1f3c;
+    --input-border:     rgba(99,102,241,0.40);
+    --input-color:      #e8eaf2;
+    --hr-color:         rgba(99,102,241,0.15);
+    --header-bg-from:   #1a1f3c;
+    --header-bg-to:     #0d1117;
+    --metric-value:     #818cf8;
+}
+
+/* ══════════════════════════════════════════════
+   DESIGN TOKENS — Light theme overrides
+══════════════════════════════════════════════ */
+@media (prefers-color-scheme: light) {
+    :root {
+        --bg-base:          #f5f6fa;
+        --bg-surface:       #ffffff;
+        --bg-surface2:      #eef0fb;
+        --bg-surface3:      #e5e7f8;
+        --border-subtle:    rgba(79,70,229,0.15);
+        --border-accent:    rgba(79,70,229,0.35);
+        --text-primary:     #1e1e2e;
+        --text-secondary:   #4b5563;
+        --text-muted:       #6b7280;
+        --accent:           #4f46e5;
+        --accent2:          #7c3aed;
+        --accent3:          #e11d48;
+        --btn-from:         #4f46e5;
+        --btn-to:           #7c3aed;
+        --btn-text:         #ffffff;
+        --pill-bg:          rgba(79,70,229,0.08);
+        --pill-border:      rgba(79,70,229,0.30);
+        --pill-color:       #4f46e5;
+        --approval-bg:      #fff7ed;
+        --approval-border:  rgba(234,88,12,0.45);
+        --approval-title:   #ea580c;
+        --sidebar-bg-from:  #f0f1fc;
+        --sidebar-bg-to:    #e8eaf8;
+        --sidebar-border:   rgba(79,70,229,0.12);
+        --input-bg:         #ffffff;
+        --input-border:     rgba(79,70,229,0.35);
+        --input-color:      #1e1e2e;
+        --hr-color:         rgba(79,70,229,0.12);
+        --header-bg-from:   #eef0fb;
+        --header-bg-to:     #f5f6fa;
+        --metric-value:     #4f46e5;
+    }
+}
+
 /* ── Global ── */
 * { font-family: 'Inter', sans-serif; }
-html, body, [class*="css"] { background-color: #0d0f1a; color: #e8eaf2; }
 
 /* ── Main header ── */
 .main-header {
-    background: linear-gradient(135deg, #1a1f3c 0%, #0d1117 50%, #1a1f3c 100%);
-    border: 1px solid rgba(99, 102, 241, 0.3);
+    background: linear-gradient(135deg, var(--header-bg-from) 0%, var(--header-bg-to) 50%, var(--header-bg-from) 100%);
+    border: 1px solid var(--border-subtle);
     border-radius: 16px;
     padding: 28px 32px;
     margin-bottom: 24px;
@@ -58,66 +133,64 @@ html, body, [class*="css"] { background-color: #0d0f1a; color: #e8eaf2; }
 .main-header::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 60%);
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 60%);
     pointer-events: none;
 }
 .main-header h1 {
     font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(135deg, #818cf8, #c084fc, #fb7185);
+    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin: 0;
 }
 .main-header p {
-    color: #94a3b8;
+    color: var(--text-secondary);
     font-size: 14px;
     margin: 6px 0 0 0;
 }
 
 /* ── Chat messages ── */
 .user-message {
-    background: linear-gradient(135deg, #1e2749, #1a1f3c);
-    border: 1px solid rgba(99,102,241,0.4);
+    background: linear-gradient(135deg, var(--bg-surface3), var(--bg-surface2));
+    border: 1px solid var(--border-accent);
     border-radius: 16px 16px 4px 16px;
     padding: 14px 18px;
     margin: 12px 0 4px auto;
     max-width: 80%;
-    color: #e8eaf2;
+    color: var(--text-primary);
     font-size: 15px;
 }
 .agent-message {
-    background: linear-gradient(135deg, #111827, #1a1f3c);
-    border: 1px solid rgba(148,163,184,0.15);
+    background: linear-gradient(135deg, var(--bg-surface), var(--bg-surface2));
+    border: 1px solid var(--border-subtle);
     border-radius: 4px 16px 16px 16px;
     padding: 18px 22px;
     margin: 4px auto 12px 0;
     max-width: 90%;
-    color: #e8eaf2;
+    color: var(--text-primary);
     font-size: 14px;
     line-height: 1.7;
 }
 
-/* ── Confidence badge ── */
-.badge-high { background: rgba(34,197,94,0.15); border: 1px solid #22c55e; color: #22c55e; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-.badge-medium-high { background: rgba(59,130,246,0.15); border: 1px solid #3b82f6; color: #3b82f6; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-.badge-medium { background: rgba(234,179,8,0.15); border: 1px solid #eab308; color: #eab308; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-.badge-low { background: rgba(239,68,68,0.15); border: 1px solid #ef4444; color: #ef4444; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+/* ── Confidence badges ── */
+.badge-high       { background: rgba(34,197,94,0.13);  border: 1px solid #22c55e; color: #16a34a; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.badge-medium-high{ background: rgba(59,130,246,0.13); border: 1px solid #3b82f6; color: #2563eb; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.badge-medium     { background: rgba(234,179,8,0.13);  border: 1px solid #eab308; color: #a16207; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.badge-low        { background: rgba(239,68,68,0.13);  border: 1px solid #ef4444; color: #dc2626; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
 
 /* ── Approval panel ── */
 .approval-panel {
-    background: linear-gradient(135deg, #1c1a30, #1a1f3c);
-    border: 2px solid rgba(251,146,60,0.5);
+    background: var(--approval-bg);
+    border: 2px solid var(--approval-border);
     border-radius: 16px;
     padding: 24px;
     margin: 16px 0;
 }
 .approval-title {
-    color: #fb923c;
+    color: var(--approval-title);
     font-weight: 700;
     font-size: 16px;
     margin-bottom: 12px;
@@ -125,8 +198,8 @@ html, body, [class*="css"] { background-color: #0d0f1a; color: #e8eaf2; }
 
 /* ── Metric cards ── */
 .metric-card {
-    background: linear-gradient(135deg, #1a1f3c, #111827);
-    border: 1px solid rgba(99,102,241,0.2);
+    background: linear-gradient(135deg, var(--bg-surface2), var(--bg-surface));
+    border: 1px solid var(--border-subtle);
     border-radius: 12px;
     padding: 18px;
     text-align: center;
@@ -134,11 +207,11 @@ html, body, [class*="css"] { background-color: #0d0f1a; color: #e8eaf2; }
 .metric-value {
     font-size: 28px;
     font-weight: 700;
-    color: #818cf8;
+    color: var(--metric-value);
 }
 .metric-label {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-muted);
     margin-top: 4px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -146,25 +219,28 @@ html, body, [class*="css"] { background-color: #0d0f1a; color: #e8eaf2; }
 
 /* ── Sidebar ── */
 section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0d1117 0%, #111827 100%);
-    border-right: 1px solid rgba(99,102,241,0.15);
+    background: linear-gradient(180deg, var(--sidebar-bg-from) 0%, var(--sidebar-bg-to) 100%);
+    border-right: 1px solid var(--sidebar-border);
 }
 section[data-testid="stSidebar"] .stSelectbox label,
-section[data-testid="stSidebar"] .stTextInput label { color: #94a3b8; }
+section[data-testid="stSidebar"] .stTextInput label {
+    color: var(--text-secondary);
+}
 
-/* ── Input box ── */
-.stTextInput > div > div > input, .stTextArea > div > div > textarea {
-    background: #1a1f3c !important;
-    border: 1px solid rgba(99,102,241,0.4) !important;
-    color: #e8eaf2 !important;
+/* ── Input boxes ── */
+.stTextInput > div > div > input,
+.stTextArea > div > div > textarea {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    color: var(--input-color) !important;
     border-radius: 12px !important;
     font-size: 15px !important;
 }
 
 /* ── Buttons ── */
 .stButton > button {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
-    color: white !important;
+    background: linear-gradient(135deg, var(--btn-from), var(--btn-to)) !important;
+    color: var(--btn-text) !important;
     border: none !important;
     border-radius: 10px !important;
     font-weight: 600 !important;
@@ -173,15 +249,15 @@ section[data-testid="stSidebar"] .stTextInput label { color: #94a3b8; }
 }
 .stButton > button:hover {
     transform: translateY(-1px) !important;
-    box-shadow: 0 8px 24px rgba(79,70,229,0.4) !important;
+    box-shadow: 0 8px 24px rgba(79,70,229,0.35) !important;
 }
 
 /* ── Source chunk pill ── */
 .source-pill {
     display: inline-block;
-    background: rgba(99,102,241,0.1);
-    border: 1px solid rgba(99,102,241,0.3);
-    color: #818cf8;
+    background: var(--pill-bg);
+    border: 1px solid var(--pill-border);
+    color: var(--pill-color);
     border-radius: 999px;
     padding: 2px 10px;
     font-size: 11px;
@@ -189,7 +265,7 @@ section[data-testid="stSidebar"] .stTextInput label { color: #94a3b8; }
 }
 
 /* ── Divider ── */
-hr { border-color: rgba(99,102,241,0.15) !important; }
+hr { border-color: var(--hr-color) !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -197,6 +273,7 @@ hr { border-color: rgba(99,102,241,0.15) !important; }
 # ═══════════════════════════════════════════════════════════════════════════════
 # Session State Initialization
 # ═══════════════════════════════════════════════════════════════════════════════
+
 def init_session():
     defaults = {
         "messages": [],          # Chat history: [{role, content, meta}]
