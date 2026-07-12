@@ -159,13 +159,28 @@ uvicorn backend.main:app --reload
 ## Running Tests & Evaluation
 
 ```bash
-# Unit tests (calculator)
+# Unit tests — calculator (no DB required)
 pytest tests/test_calculator.py -v
 
-# Calculation evaluation
+# Unit tests — retrieval logic (no DB required)
+pytest tests/test_retrieval.py -v
+
+# Unit tests — agent output format, guardrails, hallucination (no DB required)
+pytest tests/test_agent_outputs.py -v
+
+# Run ALL unit tests at once
+pytest tests/ -v
+
+# Integration tests — requires live DB and OpenAI API
+RUN_LIVE_TESTS=1 pytest tests/test_retrieval.py tests/test_agent_outputs.py -v
+
+# Retrieval evaluation (Precision@K, Recall@K, MRR) — requires live DB
+python evaluation/rag_eval.py
+
+# Calculation accuracy evaluation
 python evaluation/calculation_eval.py
 
-# Hallucination check
+# Hallucination / guardrail check
 python evaluation/hallucination_eval.py
 ```
 
@@ -196,10 +211,17 @@ python evaluation/hallucination_eval.py
 | 7 | Human-in-the-loop approval | ✅ |
 | 8 | Guardrail checks (9 rules) | ✅ |
 | 9 | LangSmith monitoring | ✅ |
-| 10 | Evaluation dataset + scripts | ✅ |
-| 11 | Final project report | 📝 |
-| 12 | Demo video | 🎥 |
-| 13 | GitHub repository + README | ✅ |
+| 10 | Sample queries dataset (20 queries) | ✅ |
+| 11 | Golden answers dataset | ✅ |
+| 12 | Calculation evaluation | ✅ |
+| 13 | Retrieval evaluation (Precision@K, MRR) | ✅ |
+| 14 | Hallucination evaluation | ✅ |
+| 15 | Unit tests — calculator | ✅ |
+| 16 | Unit tests — retrieval logic | ✅ |
+| 17 | Unit tests — agent outputs & guardrails | ✅ |
+| 18 | Final project report | 📝 |
+| 19 | Demo video | 🎥 |
+| 20 | GitHub repository + README | ✅ |
 
 ---
 
