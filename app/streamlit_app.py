@@ -435,12 +435,24 @@ with tab1:
                             human_approved=True,
                         )
                     except Exception as e:
-                        import traceback
-                        error_str = str(e)
-                        if "postgresql://" in error_str:
-                            import re
-                            error_str = re.sub(r":.*@", ":***@", error_str)
-                        st.error(f"**Database Connection Error:**\n\n{error_str}")
+                        import re as _re
+                        _estr = str(e)
+                        _code = getattr(e, 'status_code', None) or getattr(getattr(e, 'response', None), 'status_code', None)
+                        if "insufficient_quota" in _estr or "429" in _estr or _code == 429:
+                            st.error(
+                                "**⚠️ OpenAI API Quota Exceeded**\n\n"
+                                "Your OpenAI API key has run out of credits or is over its rate limit.\n\n"
+                                "**What to do:**\n"
+                                "1. Visit [platform.openai.com/usage](https://platform.openai.com/usage) to check your balance.\n"
+                                "2. Visit [platform.openai.com/settings/billing](https://platform.openai.com/settings/billing) to add credits.\n"
+                                "3. Make sure your **API key** belongs to the same account where you added credits.\n"
+                                "4. After adding credits, wait 1–2 minutes and try again."
+                            )
+                        elif "postgresql://" in _estr or "psycopg" in _estr or "OperationalError" in _estr:
+                            _estr = _re.sub(r":.*@", ":***@", _estr)
+                            st.error(f"**🔴 Database Connection Error:**\n\n{_estr}")
+                        else:
+                            st.error(f"**❌ Agent Error:**\n\n{_estr}")
                         st.stop()
                 st.session_state.messages.append({
                     "role": "assistant",
@@ -521,11 +533,24 @@ with tab1:
                     user_profile=st.session_state.user_profile,
                 )
             except Exception as e:
-                error_str = str(e)
-                if "postgresql://" in error_str:
-                    import re
-                    error_str = re.sub(r":.*@", ":***@", error_str)
-                st.error(f"**Database Connection Error:**\n\n{error_str}")
+                import re as _re
+                _estr = str(e)
+                _code = getattr(e, 'status_code', None) or getattr(getattr(e, 'response', None), 'status_code', None)
+                if "insufficient_quota" in _estr or "429" in _estr or _code == 429:
+                    st.error(
+                        "**⚠️ OpenAI API Quota Exceeded**\n\n"
+                        "Your OpenAI API key has run out of credits or is over its rate limit.\n\n"
+                        "**What to do:**\n"
+                        "1. Visit [platform.openai.com/usage](https://platform.openai.com/usage) to check your balance.\n"
+                        "2. Visit [platform.openai.com/settings/billing](https://platform.openai.com/settings/billing) to add credits.\n"
+                        "3. Make sure your **API key** belongs to the same account where you added credits.\n"
+                        "4. After adding credits, wait 1–2 minutes and try again."
+                    )
+                elif "postgresql://" in _estr or "psycopg" in _estr or "OperationalError" in _estr:
+                    _estr = _re.sub(r":.*@", ":***@", _estr)
+                    st.error(f"**🔴 Database Connection Error:**\n\n{_estr}")
+                else:
+                    st.error(f"**❌ Agent Error:**\n\n{_estr}")
                 st.stop()
             latency_ms = int((time.time() - start_time) * 1000)
 
