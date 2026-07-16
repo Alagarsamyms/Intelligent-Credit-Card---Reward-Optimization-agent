@@ -132,8 +132,7 @@ def get_monitoring_stats() -> dict:
     """
     try:
         with get_db_context() as db:
-            from sqlalchemy import func, cast
-            from sqlalchemy.dialects.postgresql import JSONB
+            from sqlalchemy import func, text
             total = db.query(func.count(RecommendationLog.query_id)).scalar()
             avg_latency = db.query(func.avg(RecommendationLog.latency_ms)).scalar()
             avg_confidence = db.query(func.avg(RecommendationLog.confidence_score)).scalar()
@@ -141,7 +140,7 @@ def get_monitoring_stats() -> dict:
                 func.count(RecommendationLog.query_id)
             ).filter(
                 RecommendationLog.guardrail_flags.op('@>')(
-                    cast('["NO_RETRIEVED_EVIDENCE"]', JSONB)
+                    text('\'["NO_RETRIEVED_EVIDENCE"]\'::jsonb')
                 )
             ).scalar()
 
