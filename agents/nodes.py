@@ -28,12 +28,13 @@ from tools.transfer_calculator import compare_transfer_options
 
 load_dotenv(override=True)
 
-# ── LLM Instance ──────────────────────────────────────────────────────────────
-llm = ChatOpenAI(
-    model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-    temperature=0,
-    api_key=os.getenv("OPENAI_API_KEY"),
-)
+# ── LLM Instance Getter ───────────────────────────────────────────────────────
+def get_llm():
+    return ChatOpenAI(
+        model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+        temperature=0,
+        api_key=os.getenv("OPENAI_API_KEY"),
+    )
 
 ALL_CARDS = [
     "Axis Atlas",
@@ -68,7 +69,7 @@ def intent_classification_node(state: AgentState) -> dict:
     query = state["query"]
 
     prompt = INTENT_CLASSIFICATION_PROMPT.format(query=query)
-    response = llm.invoke([HumanMessage(content=prompt)])
+    response = get_llm().invoke([HumanMessage(content=prompt)])
     raw = response.content.strip().lower()
 
     valid_intents = [
@@ -138,7 +139,7 @@ def clarification_node(state: AgentState) -> dict:
         intent=intent,
         user_profile=json.dumps(user_profile, indent=2),
     )
-    response = llm.invoke([HumanMessage(content=prompt)])
+    response = get_llm().invoke([HumanMessage(content=prompt)])
     raw = response.content.strip()
 
     needs = "needs_clarification: true" in raw.lower()
@@ -241,7 +242,7 @@ def calculation_node(state: AgentState) -> dict:
         chunks=chunks_text,
     )
 
-    response = llm.invoke([
+    response = get_llm().invoke([
         SystemMessage(content=SYSTEM_PROMPT),
         HumanMessage(content=extraction_prompt),
     ])
@@ -528,7 +529,7 @@ def final_answer_node(state: AgentState) -> dict:
         guardrail_flags=json.dumps(guardrail_flags),
     )
 
-    response = llm.invoke([
+    response = get_llm().invoke([
         SystemMessage(content=SYSTEM_PROMPT),
         HumanMessage(content=prompt),
     ])
