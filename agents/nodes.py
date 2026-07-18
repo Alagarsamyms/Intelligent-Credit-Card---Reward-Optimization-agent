@@ -26,6 +26,9 @@ from tools.rule_validator import validate_retrieval
 from tools.calculator import calculate_reward, compare_cards, RewardInput as CalcInput
 from tools.transfer_calculator import compare_transfer_options
 
+from database.db import get_db_context
+from database.models import RewardRule, UserProfile
+
 load_dotenv(override=True)
 
 # ── LLM Instance Getter ───────────────────────────────────────────────────────
@@ -285,94 +288,44 @@ def _build_calc_inputs(
 ) -> list[CalcInput]:
     """
     Parse the LLM's rule extraction response into structured CalcInput objects.
-    Uses regex to pull numeric values from the extracted text.
+    Queries the live database for deterministic rules.
     """
-    # Known reward structure fallback — derived from card documents
-    # These are used when LLM extraction is ambiguous
-    CARD_RULES_DB = {
-        "Axis Atlas": {
-            "flights":    {"rate": 5.0, "unit": "points_per_100_inr", "cap": 10000, "point_val": 1.0},
-            "hotels":     {"rate": 5.0, "unit": "points_per_100_inr", "cap": 10000, "point_val": 1.0},
-            "dining":     {"rate": 2.0, "unit": "points_per_100_inr", "cap": 5000,  "point_val": 1.0},
-            "groceries":  {"rate": 1.0, "unit": "points_per_100_inr", "cap": None,  "point_val": 1.0},
-            "fuel":       {"rate": 1.0, "unit": "points_per_100_inr", "cap": None,  "point_val": 1.0},
-            "insurance":  {"rate": 0,   "unit": "points_per_100_inr", "cap": None,  "exclusion": True, "exclusion_note": "Insurance is excluded per Axis Atlas T&C"},
-            "rent":       {"rate": 0,   "unit": "points_per_100_inr", "cap": None,  "exclusion": True, "exclusion_note": "Rent is excluded per Axis Atlas T&C"},
-            "utilities":  {"rate": 1.0, "unit": "points_per_100_inr", "cap": None,  "point_val": 1.0},
-            "general":    {"rate": 1.0, "unit": "points_per_100_inr", "cap": None,  "point_val": 1.0},
-        },
-        "HDFC Diners Club Black": {
-            "flights":    {"rate": 50/1.5, "unit": "points_per_100_inr", "cap": 25000, "point_val": 0.50, "note": "10X via SmartBuy"},
-            "hotels":     {"rate": 50/1.5, "unit": "points_per_100_inr", "cap": 25000, "point_val": 0.50},
-            "dining":     {"rate": 50/1.5, "unit": "points_per_100_inr", "cap": 25000, "point_val": 0.50, "note": "Zomato/Swiggy 10X"},
-            "groceries":  {"rate": 5/1.5,  "unit": "points_per_100_inr", "cap": None,  "point_val": 0.50},
-            "fuel":       {"rate": 0,       "unit": "points_per_100_inr", "cap": None,  "exclusion": True, "exclusion_note": "Fuel excluded from HDFC DCB rewards"},
-            "insurance":  {"rate": 0,       "unit": "points_per_100_inr", "cap": None,  "exclusion": True, "exclusion_note": "Insurance excluded per HDFC DCB T&C"},
-            "rent":       {"rate": 0,       "unit": "points_per_100_inr", "cap": None,  "exclusion": True, "exclusion_note": "Rent excluded per HDFC DCB T&C"},
-            "utilities":  {"rate": 5/1.5,   "unit": "points_per_100_inr", "cap": None,  "point_val": 0.50},
-            "general":    {"rate": 5/1.5,   "unit": "points_per_100_inr", "cap": None,  "point_val": 0.50},
-        },
-        "HDFC Infinia": {
-            "flights":    {"rate": 50/1.5, "unit": "points_per_100_inr", "cap": None,  "point_val": 1.0, "note": "10X via SmartBuy"},
-            "hotels":     {"rate": 50/1.5, "unit": "points_per_100_inr", "cap": None,  "point_val": 1.0},
-            "dining":     {"rate": 5/1.5,  "unit": "points_per_100_inr", "cap": None,  "point_val": 1.0},
-            "groceries":  {"rate": 5/1.5,  "unit": "points_per_100_inr", "cap": None,  "point_val": 1.0},
-            "fuel":       {"rate": 0,       "unit": "points_per_100_inr", "cap": None,  "exclusion": True, "exclusion_note": "Fuel not eligible per Infinia T&C"},
-            "insurance":  {"rate": 0,       "unit": "points_per_100_inr", "cap": None,  "exclusion": True, "exclusion_note": "Insurance not eligible per Infinia T&C"},
-            "rent":       {"rate": 0,       "unit": "points_per_100_inr", "cap": None,  "exclusion": True, "exclusion_note": "Rent not eligible per Infinia T&C"},
-            "utilities":  {"rate": 5/1.5,   "unit": "points_per_100_inr", "cap": None,  "point_val": 1.0},
-            "general":    {"rate": 5/1.5,   "unit": "points_per_100_inr", "cap": None,  "point_val": 1.0},
-        },
-        "Amex Platinum Travel": {
-            "flights":    {"rate": 5.0, "unit": "points_per_100_inr", "cap": None,  "point_val": 0.50},
-            "hotels":     {"rate": 5.0, "unit": "points_per_100_inr", "cap": None,  "point_val": 0.50},
-            "dining":     {"rate": 5.0, "unit": "points_per_100_inr", "cap": None,  "point_val": 0.50},
-            "groceries":  {"rate": 1.0, "unit": "points_per_100_inr", "cap": None,  "point_val": 0.50},
-            "fuel":       {"rate": 1.0, "unit": "points_per_100_inr", "cap": None,  "point_val": 0.50},
-            "insurance":  {"rate": 0,   "unit": "points_per_100_inr", "cap": None,  "exclusion": True, "exclusion_note": "Insurance not eligible per Amex T&C"},
-            "rent":       {"rate": 0,   "unit": "points_per_100_inr", "cap": None,  "exclusion": True, "exclusion_note": "Rent not eligible per Amex T&C"},
-            "utilities":  {"rate": 1.0, "unit": "points_per_100_inr", "cap": None,  "point_val": 0.50},
-            "online":     {"rate": 3.0, "unit": "points_per_100_inr", "cap": 5000,  "point_val": 0.50},
-            "general":    {"rate": 1.0, "unit": "points_per_100_inr", "cap": None,  "point_val": 0.50},
-        },
-        "SBI Cashback": {
-            "flights":    {"rate": 1.0, "unit": "cashback_pct", "cap": 5000, "point_val": 1.0, "note": "Offline rate"},
-            "hotels":     {"rate": 1.0, "unit": "cashback_pct", "cap": 5000, "point_val": 1.0},
-            "dining":     {"rate": 5.0, "unit": "cashback_pct", "cap": 5000, "point_val": 1.0, "note": "Online orders only"},
-            "groceries":  {"rate": 5.0, "unit": "cashback_pct", "cap": 5000, "point_val": 1.0, "note": "Online only"},
-            "fuel":       {"rate": 1.0, "unit": "cashback_pct", "cap": 100,  "point_val": 1.0},
-            "insurance":  {"rate": 1.0, "unit": "cashback_pct", "cap": 5000, "point_val": 1.0},
-            "rent":       {"rate": 0,   "unit": "cashback_pct", "cap": None, "exclusion": True, "exclusion_note": "Rent not eligible per SBI Cashback T&C"},
-            "utilities":  {"rate": 1.0, "unit": "cashback_pct", "cap": 5000, "point_val": 1.0},
-            "general":    {"rate": 1.0, "unit": "cashback_pct", "cap": 5000, "point_val": 1.0},
-        },
-    }
-
     inputs = []
-    # Find the right category key
     cat_key = spend_category if spend_category else "general"
 
-    for card in cards_to_compare:
-        if card not in CARD_RULES_DB:
-            continue
+    with get_db_context() as db:
+        for card in cards_to_compare:
+            # Query exact category match
+            rule = db.query(RewardRule).filter(
+                RewardRule.card_name == card,
+                RewardRule.spend_category == cat_key
+            ).first()
 
-        card_rules = CARD_RULES_DB[card]
-        rule = card_rules.get(cat_key, card_rules.get("general", {}))
+            # Fallback to general category if exact match not found
+            if not rule:
+                rule = db.query(RewardRule).filter(
+                    RewardRule.card_name == card,
+                    RewardRule.spend_category == "general"
+                ).first()
 
-        # User-defined point valuation overrides default
-        pv = point_valuations.get(card, rule.get("point_val", 1.0))
+            if not rule:
+                continue
 
-        inp = CalcInput(
-            card_name=card,
-            spend_amount=spend_amount,
-            reward_rate=rule.get("rate", 1.0),
-            reward_unit=rule.get("unit", "points_per_100_inr"),
-            point_value_inr=pv,
-            monthly_cap_points=rule.get("cap"),
-            exclusion=rule.get("exclusion", False),
-            exclusion_note=rule.get("exclusion_note", ""),
-        )
-        inputs.append(inp)
+            # Get user point valuation, fallback to reasonable defaults if not set
+            default_pvs = {"Axis Atlas": 1.0, "HDFC Diners Club Black": 0.5, "HDFC Infinia": 1.0, "Amex Platinum Travel": 0.5, "SBI Cashback": 1.0}
+            pv = point_valuations.get(card, default_pvs.get(card, 1.0))
+
+            inp = CalcInput(
+                card_name=card,
+                spend_amount=spend_amount,
+                reward_rate=float(rule.reward_rate),
+                reward_unit=rule.reward_unit,
+                point_value_inr=pv,
+                monthly_cap_points=float(rule.cap_value) if rule.cap_value else None,
+                exclusion=rule.exclusion_flag,
+                exclusion_note=rule.exclusion_notes or "",
+            )
+            inputs.append(inp)
 
     return inputs
 
