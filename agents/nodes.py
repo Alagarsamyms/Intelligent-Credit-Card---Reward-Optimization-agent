@@ -73,37 +73,45 @@ def intent_classification_node(state: AgentState) -> dict:
 
     prompt = INTENT_CLASSIFICATION_PROMPT.format(query=query)
     response = get_llm().invoke([HumanMessage(content=prompt)])
-    raw = response.content.strip().lower()
+    raw = response.content.strip()
+    
+    # Strip markdown block if present
+    if raw.startswith("```json"):
+        raw = raw[7:]
+    if raw.startswith("```"):
+        raw = raw[3:]
+    if raw.endswith("```"):
+        raw = raw[:-3]
+    raw = raw.strip()
 
     valid_intents = [
         "single_transaction", "monthly_optimization", "point_transfer",
         "card_comparison", "point_valuation", "unknown",
     ]
-    intent = next((i for i in valid_intents if i in raw), "unknown")
-
-    # Extract spend details from query using regex
-    spend_match = re.search(r"(?:rs\.?\s*|₹\s*)([0-9,]+)", query, re.IGNORECASE)
+    
+    intent = "unknown"
     spend_amount = None
-    if spend_match:
-        spend_amount = float(spend_match.group(1).replace(",", ""))
-
-    # Extract spend category hints
-    category_map = {
-        "flight": "flights", "airline": "flights", "travel": "flights",
-        "hotel": "hotels", "resort": "hotels", "accommodation": "hotels",
-        "dine": "dining", "restaurant": "dining", "food": "dining",
-        "grocer": "groceries", "supermarket": "groceries",
-        "fuel": "fuel", "petrol": "fuel",
-        "insurance": "insurance",
-        "rent": "rent",
-        "utility": "utilities", "electricity": "utilities",
-    }
     spend_category = None
+
+    try:
+        data = json.loads(raw)
+        parsed_intent = data.get("intent", "").lower()
+        intent = next((i for i in valid_intents if i in parsed_intent), "unknown")
+        
+        # Convert spend_amount to float if provided
+        s_amt = data.get("spend_amount")
+        if s_amt is not None:
+            spend_amount = float(s_amt)
+            
+        spend_category = data.get("spend_category")
+        if spend_category and spend_category.lower() == "null":
+            spend_category = None
+            
+    except json.JSONDecodeError:
+        # Fallback if LLM fails to output valid JSON
+        intent = next((i for i in valid_intents if i in raw.lower()), "unknown")
+        
     query_lower = query.lower()
-    for keyword, category in category_map.items():
-        if keyword in query_lower:
-            spend_category = category
-            break
 
     # Determine which cards to compare
     card_mentions = []
@@ -136,8 +144,18 @@ def clarification_node(state: AgentState) -> dict:
     query = state["query"]
     intent = state.get("intent", "unknown")
     user_profile = state.get("user_profile", {})
+    messages = state.get("messages", [])
+    
+    # Build chat history string (excluding the latest query which is passed separately)
+    history_str = ""
+    for msg in messages[:-1]:
+        prefix = "User" if isinstance(msg, HumanMessage) else "Agent"
+        history_str += f"{prefix}: {msg.content}\n"
+    if not history_str:
+        history_str = "No previous conversation."
 
     prompt = CLARIFICATION_PROMPT.format(
+        chat_history=history_str,
         query=query,
         intent=intent,
         user_profile=json.dumps(user_profile, indent=2),
@@ -397,8 +415,8 @@ def human_approval_node(state: AgentState) -> dict:
     """
     chunks = state.get("retrieved_chunks", [])
     transfer_data_text = "\n".join([
-        f"• {c['card_name']}: {c['chunk_text'][:200]}..."
-        for c in chunks if "transfer" in c["chunk_text"].lower()
+        f"• {c['card_name']}: {c.get('chunk_text', '')[:200]}..."
+        for c in chunks if c.get('chunk_text') and "transfer" in c.get('chunk_text').lower()
     ]) or "Transfer partner data retrieved from card documents."
 
     user_profile = state.get("user_profile", {})

@@ -88,16 +88,24 @@ INTENT_CLASSIFICATION_PROMPT = """Classify the following user query into exactly
 
 User Query: {query}
 
-Respond with ONLY the intent label (e.g., single_transaction). No explanation needed."""
+Respond strictly in valid JSON format with the following keys:
+{{
+  "intent": "one of the 6 intents above",
+  "spend_amount": <total numeric amount in INR if mentioned, sum up multiple categories if provided. e.g. for '30K groceries, 50K travel', output 80000. If no amount is mentioned, output null>,
+  "spend_category": "the primary category (e.g. 'flights', 'dining', 'groceries', 'general'). Output 'general' if multiple categories are provided or if none is specified"
+}}"""
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CLARIFICATION PROMPT
 # ═══════════════════════════════════════════════════════════════════════════════
-CLARIFICATION_PROMPT = """Based on the user's query, determine if you need more information to give a useful answer.
+CLARIFICATION_PROMPT = """Based on the user's query and the conversation history, determine if you need more information to give a useful answer.
 
-User Query: {query}
-Intent: {intent}
+Conversation History:
+{chat_history}
+
+User's Latest Query: {query}
+Detected Intent: {intent}
 User Profile: {user_profile}
 
 Common reasons to ask for clarification:
@@ -105,6 +113,8 @@ Common reasons to ask for clarification:
 - User has not specified their reward preference (cashback, points, miles, hotel)
 - For point transfer: user has not specified their goal (flights, hotels, cashback)
 - For monthly optimization: spend amounts are missing
+
+IMPORTANT: Do not ask for clarification if the user has already provided the information in their query or in the conversation history! For example, if they provided individual category spend amounts, DO NOT ask them for the total, we will calculate it ourselves.
 
 If clarification IS needed, respond with:
 NEEDS_CLARIFICATION: true
