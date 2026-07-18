@@ -34,8 +34,8 @@ This document provides a step-by-step technical script for your live demonstrati
 
 ### Step 4: Trigger the Human-in-the-Loop (HITL) Approval
 **Goal:** Demonstrate system safety and agentic pausing.
-* **UI Action:** Type: *"I have 50,000 points on my Amex. I want to transfer them to Marriott."*
-* **UI Result:** The UI will pause and render a Warning/Confirmation button asking for approval before proceeding.
+* **UI Action:** Type: *"I have 50,000 points on my Amex. I want to transfer them to Marriott for hotel stays."*
+* **UI Result:** The UI will instantly pause and render a Warning/Confirmation button asking for approval before proceeding.
 * **Technical Action (Code):** Open `agents/nodes.py` and `app/streamlit_app.py`.
 * **What to Highlight:**
     - In `nodes.py`, show `human_approval_node`. Explain that transfers are irreversible, so the agent sets an `awaiting_approval` flag.

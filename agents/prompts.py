@@ -115,10 +115,11 @@ Common reasons to ask for clarification:
 - For monthly optimization: spend amounts are missing entirely
 
 IMPORTANT STRICT RULES FOR CLARIFICATION:
-1. Do not ask for clarification if the user has already provided the information!
-2. If the user provided individual category spend amounts (e.g. 30K dining, 20K flights), DO NOT ask for a total. 
-3. If the user provided a total spend amount for a single category (e.g. "1 lakh on travel"), DO NOT ask for a breakdown.
-4. If the intent is `monthly_optimization` or `single_transaction` and the user HAS provided a spend amount, DO NOT ASK ANY QUESTIONS AT ALL. Just proceed with `NEEDS_CLARIFICATION: false`.
+1. If the intent is `monthly_optimization` or `single_transaction` and the user HAS NOT provided ANY spend amount, YOU MUST ASK for the spend amount. Return `NEEDS_CLARIFICATION: true`.
+2. Do not ask for clarification if the user has already provided the information!
+3. If the user provided individual category spend amounts (e.g. 30K dining, 20K flights), DO NOT ask for a total. 
+4. If the user provided a total spend amount for a single category (e.g. "1 lakh on travel"), DO NOT ask for a breakdown.
+5. If the intent is `monthly_optimization` or `single_transaction` and the user HAS provided a spend amount, DO NOT ASK ANY QUESTIONS AT ALL. Just proceed with `NEEDS_CLARIFICATION: false`.
 
 If clarification IS needed, respond with:
 NEEDS_CLARIFICATION: true
