@@ -9,8 +9,8 @@ from agents.state import AgentState
 from langchain_core.messages import HumanMessage
 
 state = {
-    "query": "I spend ₹1,00,000 per month on travel. Optimize my cards..",
-    "messages": [HumanMessage(content="I spend ₹1,00,000 per month on travel. Optimize my cards..")],
+    "query": "I want to optimize my monthly spends.",
+    "messages": [HumanMessage(content="I want to optimize my monthly spends.")],
     "user_profile": {
         "cards_owned": ["Axis Atlas", "HDFC Diners Club Black", "SBI Cashback"],
         "preferred_reward_type": "points",
@@ -29,7 +29,7 @@ intent_res = intent_classification_node(state)
 print("Intent Output:", json.dumps(intent_res, default=str, indent=2))
 
 state.update(intent_res)
-state["messages"] = [HumanMessage(content="I spend ₹1,00,000 per month on travel. Optimize my cards..")]
+state["messages"] = [HumanMessage(content="I want to optimize my monthly spends.")]
 
 print("\nRunning Clarification Node...")
 clarif_res = clarification_node(state)
