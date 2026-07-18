@@ -112,9 +112,13 @@ Common reasons to ask for clarification:
 - User has not specified which cards they own (ask if not in profile)
 - User has not specified their reward preference (cashback, points, miles, hotel)
 - For point transfer: user has not specified their goal (flights, hotels, cashback)
-- For monthly optimization: spend amounts are missing
+- For monthly optimization: spend amounts are missing entirely
 
-IMPORTANT: Do not ask for clarification if the user has already provided the information in their query or in the conversation history! For example, if they provided individual category spend amounts, DO NOT ask them for the total, we will calculate it ourselves.
+IMPORTANT STRICT RULES FOR CLARIFICATION:
+1. Do not ask for clarification if the user has already provided the information!
+2. If the user provided individual category spend amounts (e.g. 30K dining, 20K flights), DO NOT ask for a total. 
+3. If the user provided a total spend amount for a single category (e.g. "1 lakh on travel"), DO NOT ask for a breakdown.
+4. If the intent is `monthly_optimization` or `single_transaction` and the user HAS provided a spend amount, DO NOT ASK ANY QUESTIONS AT ALL. Just proceed with `NEEDS_CLARIFICATION: false`.
 
 If clarification IS needed, respond with:
 NEEDS_CLARIFICATION: true

@@ -144,39 +144,41 @@ def validate_retrieval(
                 found_caps.append(f"[{chunk['card_name']}] {cap_text}")
 
     # Determine overall sufficiency
+    safe_spend_category = spend_category if spend_category else "general"
+    
     has_rule = len(found_rules) > 0
     has_high_similarity = any(c.get("similarity", 0) >= 0.48 for c in relevant)
     category_mentioned = any(
-        spend_category.lower() in c.get("chunk_text", "").lower() for c in relevant
+        safe_spend_category.lower() in c.get("chunk_text", "").lower() for c in relevant
     )
 
     if has_rule and has_high_similarity and category_mentioned:
         sufficient = True
         confidence = "HIGH"
-        reason = f"Found {len(found_rules)} clear reward rule(s) with high similarity for '{spend_category}'."
+        reason = f"Found {len(found_rules)} clear reward rule(s) with high similarity for '{safe_spend_category}'."
     elif has_rule and (has_high_similarity or category_mentioned):
         sufficient = True
         confidence = "MEDIUM-HIGH"
-        reason = f"Found relevant rules but some context may be missing for '{spend_category}'."
+        reason = f"Found relevant rules but some context may be missing for '{safe_spend_category}'."
     elif has_rule:
         sufficient = True
         confidence = "MEDIUM"
-        reason = f"Found rules but category match is partial for '{spend_category}'. Assumptions may be needed."
+        reason = f"Found rules but category match is partial for '{safe_spend_category}'. Assumptions may be needed."
     else:
         sufficient = False
         confidence = "LOW"
         reason = (
-            f"Retrieved chunks do not contain clear reward rules for '{spend_category}'. "
+            f"Retrieved chunks do not contain clear reward rules for '{safe_spend_category}'. "
             f"Cannot provide a grounded answer."
         )
 
     # Check for explicit exclusion (highest priority)
     if found_exclusions and any(
-        spend_category.lower() in exc.lower() for exc in found_exclusions
+        safe_spend_category.lower() in exc.lower() for exc in found_exclusions
     ):
         sufficient = True  # We CAN answer — the answer is "excluded"
         confidence = "HIGH"
-        reason = f"Category '{spend_category}' is explicitly excluded from rewards. This IS a valid answer."
+        reason = f"Category '{safe_spend_category}' is explicitly excluded from rewards. This IS a valid answer."
 
     return ValidationResult(
         sufficient=sufficient,
